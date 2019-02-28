@@ -21,6 +21,10 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
   - 观察：通常不太care end-to-end的流量信息，而关注network/AS之间的流量信息
   - 做法：将复合相同规则的流量信息聚合。比如，相同source AS & destination AS或者相同source network等等
 - Sampling：每x个包才更新一次DRAM
+- accuracy analysis：所有包大小相同，采样概率为$\frac{1}{x}$，记$c$为NetFlow的counter值，$s$是流的真实大小。
+  - 一个流完全没有被测到：$(1-\frac{1}{x})^s$
+  - $E(c) = \frac{s}{x}$，因此流的估计大小为$cx$
+  - $c$服从二项分布，因此其标准差为$SD[c]=\sqrt{\frac{s}{x}(1-\frac{1}{x})}$，因此估计值的标准差为$\sqrt{sx(1-\frac{1}{x})}$
 - 参考网址：https://www.cisco.com/c/en/us/td/docs/ios/12_2/switch/configuration/guide/fswtch_c/xcfnfov.html
 
 
