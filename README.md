@@ -10,7 +10,7 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 ## Sampling-based Method
 
-### 1. NetFlow
+### 1. NetFlow (used in Cisco system)
 
 - flow ID：5-tuple, TOS (Type Of Service) byte, the interface of the router recieved the packet
 - 存储方式：在router interface的DRAM里存放一张表，每个entry对应一个流，包含的流信息有，flow ID、timestamp (开始&结束)、packet count、byte count、TCP flags、source network、source AS (Autonomous System)、destination network、destination AS、output interface、next hop router
@@ -23,9 +23,14 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 - Sampling：每x个包才更新一次DRAM
 - accuracy analysis：所有包大小相同，采样概率为$\frac{1}{x}$，记$c$为NetFlow的counter值，$s$是流的真实大小。
   - 一个流完全没有被测到：$(1-\frac{1}{x})^s$
-  - $E(c) = \frac{s}{x}$，因此流的估计大小为$cx$
+  - $E(c) = \frac{s}{x}​$，因此流的估计大小为$cx​$
   - $c$服从二项分布，因此其标准差为$SD[c]=\sqrt{\frac{s}{x}(1-\frac{1}{x})}$，因此估计值的标准差为$\sqrt{sx(1-\frac{1}{x})}$
 - 参考网址：https://www.cisco.com/c/en/us/td/docs/ios/12_2/switch/configuration/guide/fswtch_c/xcfnfov.html
+
+### 2. sFlow (published in RFC 3176)
+
+- Sampling：同NetFlow
+- 参考网址：https://sflow.org/sFlowOverview.pdf
 
 
 
