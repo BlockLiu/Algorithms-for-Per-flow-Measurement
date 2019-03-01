@@ -14,8 +14,10 @@ class BloomFilter
 	BOBHash32** hash;
 
 public:
-	BloomFilter(int m, int n, int k): n(n), m(m), k(k)
+	BloomFilter(int m, int n, int k): n(n), m(m)
 	{
+		k = k == 0 ? int(n * 1.0 / m * log(2)) : k;
+
 		w = m / 8 + (m % 8 == 0 ？0 : 1);
 		array = new uint8_t[w];
 		memset(array, 0, w);
@@ -23,11 +25,6 @@ public:
 		hash = new BOBHash32*[k];
 		for(int i = 0; i < k; ++i)
 			hash[i] = new BOBHash32(100 + i);
-	}
-	BloomFilter(int m, int n)
-	{
-		k = int(n * 1.0 / m * log(2));
-		BloomFilter(m, n, k);
 	}
 	~BloomFilter(){
 		delete array;
