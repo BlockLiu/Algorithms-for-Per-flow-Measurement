@@ -36,7 +36,7 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 ## Bloom filters
 
 ### 1. Bloom filter
-- 作用：集合元素存在性查询
+- 作用：单集合元素存在性查询
 
 - 假阳性分析：假设某集合总共包含n个元素（不重复），bloom filter含有m个比特，使用 k 个哈希函数
 
@@ -49,6 +49,9 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
   - 对 $\ln(Fpr) = k \ln{(1-e^{-\frac{nk}{m}})}$ 求导：$\frac{\partial}{\partial k}\ln(Fpr) = \ln (1-e^{-\frac{nk}{m}}) + \frac{\frac{nk}{m}\cdot e^{-\frac{nk}{m}}}{1-e^{-\frac{nk}{m}}}$，令其等于0，可得$e^{-\frac{nk}{m}}=\frac{1}{2}$，即最优k值为：$k=\frac{n}{m}\ln2$
 
 ### 2. Counting Bloom filter
+
+- 作用：多重集合元素查询
+- 做法：s集合中的元素可以重复，因此把每个bit换成counter就行了
 
 ## Sketches
 
