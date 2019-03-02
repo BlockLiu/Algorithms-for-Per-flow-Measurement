@@ -65,8 +65,14 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 - 作用：多集合元素查询
 - 做法：每个集合对应一个ID（序号），因此可以用一个bloom filter对应ID的一个bit
-- 缺点：各个ID所包含的1的数量不一样
+- 缺点：各个ID所包含的1的数量不一样，插入速度变慢
 - 优化：把ID扩张一倍，后面补个反码
+
+### 5. Combinatorial Bloom Filter
+
+- 作用：多集合元素查询
+- 做法：只用一个很大的bloom filter，但是使用不同的hash function组来表示不同的集合
+- 缺点：插入速度慢
 
 
 

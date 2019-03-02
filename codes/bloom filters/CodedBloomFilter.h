@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-#include "../common/BOBHash32.h"
+#include "BloomFilter.h"
 
 
 class CodedBloomFilter
