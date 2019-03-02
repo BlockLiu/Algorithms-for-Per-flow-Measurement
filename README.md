@@ -6,7 +6,17 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 每天一个小目标 O_O！
 
+[Sampling-based Method](#sampling-based-method)
+
+[Bloom filters](#bloom-filters)
+
+[Sketches](#sketches)
+
 [TOC]
+
+
+
+
 
 
 
