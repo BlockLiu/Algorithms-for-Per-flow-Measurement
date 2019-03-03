@@ -12,14 +12,6 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 [Sketches](#sketches)
 
-[TOC]
-
-
-
-
-
-
-
 
 
 ## Sampling-based Method
@@ -87,7 +79,21 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 - 做法：只用一个很大的bloom filter，但是使用不同的hash function组来表示不同的集合
 - 缺点：插入速度慢
 
+### 6. kBF
 
+### 7. Bloomtree
+
+### 8. Bloomier
+
+### 9. Cuckoo filter
+
+- 作用：单集合元素查询
+- 做法：filter有bucket array构成，每个bucket包含多个entry，每个entry存放一个partial key
+  - 先由key计算partial key：$f$
+  - 计算两个候选位置：$pos_1 = hash(key)$ 和 $pos_2 = hash(key)~XOR ~hash(f)$
+  - 插入：如果有空位，就插入；否则，踢掉一个插进去，并把踢掉的那个找另一个候选位置，放进去
+  - 查询：查$pos_1$和$pos_2$位置是不是有partial key相等的entry
+  - 删除：删掉候选位置与$f$ 相等的entry你们 
 
 
 ## Sketches
