@@ -83,9 +83,9 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 ### 7. Bloomtree
 
-### 8. Bloomier
+### 8. Bloomier Filter
 
-### 9. Cuckoo filter
+### 9. Cuckoo Filter
 
 - 作用：单集合元素查询
 - 做法：filter有bucket array构成，每个bucket包含多个entry，每个entry存放一个partial key
