@@ -1,4 +1,4 @@
-# 常见per-flow measurement方法
+# 常见Sketch&BloomFilter算法
 
 Per-flow measurement指在网络交换机或者路由器测量某个流的某些信息。最典型的是流量测量，即这个流有多少包/字节经过这个交换机。
 
@@ -240,16 +240,38 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
   - 按照进位的方式查询即可
 - 好处：因为实际流量中frequency较小的流比较多，因此低层可以使用较小的counter节省空间
 
-### 6. CounterBraids
-
 
 
 ## Others
 ### 1. Space-Saving
-### 2. MRAC
-### 3. UnivMon
-### 4. FlowRadar
-### 5. SketchVisor
+
+- 作用：finding heavy items (items with large frequency)
+- 插入算法简单介绍：
+  - 若数据结构未满，直接插入
+  - 若满了，则替换value最小的元素，并让value+1
+- 数据结构：
+  - 一个哈希表：key -> key_node的指针
+  - 一个value node list，是双向链表，node代表的值从小到大排布
+  - 每个value node连着一串key node
+    - key node之间用双向链表连接
+    - 每个key node还存着一个指针指向value node
+- 具体的插入（key）过程：
+  - 如果在哈希表中找到key，执行下面的increment操作
+    - 将对应的key node从所在的value node中移除
+      - 如果移除后list空了，那么将这个value node从value node list中移除
+    - 查看原来value node中的下一个value node
+      - 如果新node的value = old node的值+1，那么在这个value node所在的key node list中插入这个key
+      - 否则，新建一个value node，将值职位old value+1，并将这个key插入到这个value ndoe
+  - 如果没有找到这个key：
+    - 将v1（最小值的value node）中一个key node的key替换成插入的key，并将这个key node从v1中移除
+    - 执行上面的increment操作
+
+### 2. UnivMon
+
+- 
+
+### 3. FlowRadar
+### 4. SketchVisor
 
 
 
