@@ -268,12 +268,84 @@ Per-flow measurement指在网络交换机或者路由器测量某个流的某些
 
 ### 2. UnivMon
 
-- 
+- 处理对象：n个不同的元素，总共m个包，$f_i$表示第i个元素的频率
+- 目标是回答G-sum：$\sum g(f_i)$，其中g是单调的，并且以 $f_i^2$ 为upper bound
+- 数据结构：$H=\log(n)$个count sketch，按照类似pyramid sketch那样叠加起来
+- （online）插入过程：
+  - 哈希H次（哈希值落在{0, 1}之间）
+  - 如果发现1～j个的哈希值都是1（这样的最大的j），那么插入第1～j个count sketch
+- （offline）查询过程：
+  - 从数据结构中的每一层count sketch读出heavy hitter集合（命名为$Q_j, 1\leq j \leq \log(n)$, $w_j(i)$表示$Q_j$中的第i个heavy hitter)
+  - 对这些heavy hitter作g()操作
+  - 计算顶层的G-sum：$Y_{\log(n)}=\sum_{i} g(w_{\log(n)}(i))$
+  - 对于接下来的层次：
+    - $Y_j = 2Y_{j+1} + \sum_{i \in Q_j}(1 - 2 h_{j+1}(i))(g(w_j(i))$
+    - 第一项：G-sum的2倍
+    - 后一项：
+      - 如果$Q_j(i)$不在第j+1层出现，那么$h_{j+1}(i)=0$，所以后面一项代表加上$Q_j(i)$的counter值
+      - 如果$Q_j(i)$在第j+1层出现，那么$h_{j+1}(i)=1$，所以后面一项代表减去$Q_j(i)$的counter值，因此保证了G-sum是1倍的
+        - 这里有个隐含的东西：出现在第j+1层的必定出现在第j层，所以第j+1层的G-sum肯定会全部被减一遍
+      - 这样做的好处是方便流水化
+  - task：
+    - heavy hiiter：直接用count sketch做
+    - entropy
 
-### 3. FlowRadar
+### 3. FlowRadar 
+
+- 作用：key-value的流量测量任务
+- 数据结构很简单：一个bloom filter + 一个counting table（类似IBLT的东西）
+  - counting table中的每个cell包含3哥域：
+    - FlowXOR：映射到这里面的flow ID的异或值
+    - FlowCount：映射到这里面的流个数
+    - packetCount：映射到这里的包个数
+- 插入key：
+  - 检查bloom filter，key是否出现过？
+    - 如果出现过，那么在counting table中映射到k个位置，执行packetCount++
+    - 否则，先将key插入bloom filter，再映射到counting table中的k个位置，
+      - 将key异或进入FlowXOR
+      - FlowCount++
+      - packetCount++
+  - 解码过程（就是IBLT的list out操作）
+    -  先找FlowCount=1的cell，读出里面的key和value，然后从与这个key相关的cell删除信息
+    - 继续上一步
+  - Network-Wide decoding：
+    - FlowDecode across switches：	
+      - 现在switche内部作decode
+      - 然后比较两个相邻两个switch的解码出来的元素集合
+        - S1表示一个交换机的解码结果， S2表示另一个交换机的解码结果
+        - 查看S1-S2中的元素是不是在switch 2的bloom filter中出现
+          - 如果出现了，把这个元素加入S2的结果，并且更新对应的FlowXOR、FlowCount、PacketCount
+        - 再对S2-S1同样做一次
+    - CounterDecode at a single switch:
+      - 通过上面的FlowDecode across switches，大概知道哪些counter里有哪些key，且知道这些key对应的流的包总量
+      - 假设有m个counter，n个flow，那么可以得到一个包含n个变量、m个等式的方程组
+      - 然后用matlab等工具来解这些东西，最终的到key对应的packet num
+
 ### 4. SketchVisor
 
-
-
-
+- 一个集成多种sketch algorithm for various measurement tasks的system
+- overview：
+  - data plane分为normal path和fast path：
+    - 数据进入data plane后，首先判断一个FIFO buffer是否已满
+      - 如果没满，则走normal path，由内部各种算法来处理
+      - 如果满了，则走**fast path**
+  - control plane：
+    - 从各地收集数据
+    - 将各地收回的数据进行一定的修复（a recover algorithm based on Compressive Sensing）
+- Fast Path
+  - key idea：
+    - 假设进入fast path的流也是长尾分布的 => 应注重收集large flow的信息
+    - 同时小流信息也很重要 => 不单独为记录每个小流的信息，而是记录它们的统计信息
+    - 总而言之，就是设计一个top-k算法（具体算法还是直接看论文吧，论文讲的很清楚）
+- recovery algorithm:
+  - 已知的信息：
+    - 将所有sketch加在一起，得到一个N（就是对应位置的counter相加）
+      - N是明显不准确的，因为走fast path的小流的信息都被扔掉了
+    - 所有的top-k流组成一个hash表H
+      - H的误差只与选择的算法本身有关
+    - 记录流的总字节数V
+      - 这个可以完全准确
+  - 补全N => 矩阵补全的问题
+    - 使用compressive sensing来补全N
+    - 具体的可以看论文s
 
